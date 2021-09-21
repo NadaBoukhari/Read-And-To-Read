@@ -1,0 +1,16 @@
+.site-layout-content {
+  margin: 3vh 2vh 2vh;
+}
+
+.site-layout-sub-header-background {
+  padding: 0;
+  height: 9vh;
+  background: #fff;
+}
+
+.site-layout-background {
+  padding: 1vh;
+  height: 86vh;
+
+  background: #fff;
+}
