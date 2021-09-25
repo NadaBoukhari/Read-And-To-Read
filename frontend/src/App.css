@@ -1,16 +1,24 @@
 .site-layout-content {
-  margin: 3vh 2vh 2vh;
+  margin: 1vh;
 }
 
 .site-layout-sub-header-background {
-  padding: 0;
-  height: 9vh;
+  margin: 1vh;
+  height: 8vh;
   background: #fff;
 }
 
 .site-layout-background {
   padding: 1vh;
-  height: 86vh;
+  height: 87vh;
 
   background: #fff;
+}
+
+.hover-effect {
+  transition: background-color 200ms ease-out 100ms;
+}
+
+.hover-effect:hover {
+  background-color: #3c426b;
 }
