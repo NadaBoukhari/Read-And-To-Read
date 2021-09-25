@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/books")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
 public class BookController {
     BookService bookService;
 
@@ -49,7 +49,7 @@ public class BookController {
     @DeleteMapping("/delete-book/{id}")
     public ResponseEntity<Book> deleteBook(@PathVariable UUID id) {
         bookService.deleteBook(id);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

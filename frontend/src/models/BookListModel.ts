@@ -5,4 +5,5 @@ export interface IBook {
   review?: string;
   rating?: number;
   img_url?: string;
+  index?: number;
 }

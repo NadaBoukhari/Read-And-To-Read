@@ -10,12 +10,13 @@ const BookDisplay: FC<IBookDisplayProp> = ({ book }) => {
         <div className="site-layout-background">
           <div>{book?.title}</div>
           <div>{book?.author}</div>
+          <div>{book?.img_url}</div>
           <Rate allowHalf value={book?.rating} />
           <div>{book?.review}</div>
           <Image src={book?.img_url} />
           <div>{book?.id}</div>
         </div>
-      </Content>{" "}
+      </Content>
     </>
   );
 };

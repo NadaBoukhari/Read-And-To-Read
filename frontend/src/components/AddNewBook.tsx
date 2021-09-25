@@ -1,9 +1,7 @@
 import { FC, useState, useEffect } from "react";
-import { AutoComplete, Input, Image } from "antd";
-import { PlusCircleOutlined } from "@ant-design/icons";
+import { AutoComplete, Image } from "antd";
 import axios from "axios";
 import { IBook } from "../models/BookListModel";
-import { file } from "@babel/types";
 const { Option } = AutoComplete;
 
 interface AddBookState extends IBook {
@@ -22,7 +20,7 @@ const AddNewBook: FC = () => {
 
       await axios
         .get(
-          `https://www.googleapis.com/books/v1/volumes?q="${temp}"&langRestrict=en&maxResults=3`
+          `https://www.googleapis.com/books/v1/volumes?q=${temp}&langRestrict=en&maxResults=3`
         )
         .then((response) => {
           const suggestions: AddBookState[] =
@@ -32,7 +30,7 @@ const AddNewBook: FC = () => {
                 title: item.volumeInfo.title && item.volumeInfo.title,
                 author: item.volumeInfo.authors && item.volumeInfo.authors[0],
                 img_url:
-                  item.volumeInfo.imageLinks.thumbnail &&
+                  item.volumeInfo.imageLinks &&
                   item.volumeInfo.imageLinks.thumbnail,
                 index: index,
               };
@@ -54,11 +52,18 @@ const AddNewBook: FC = () => {
   };
 
   const handleAutocompleteSelect = (value: string, option: any) => {
-    const arr = filteredSuggestions.filter((suggest: AddBookState) => {
-      return suggest.index === parseInt(option.key);
-    });
-    console.log(arr);
+    const newBook = filteredSuggestions.find(
+      (book: AddBookState) => book.index === parseInt(option.key)
+    );
+
+    axios
+      .post<IBook>("http://localhost:8080/books/add-book", newBook)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => console.log(err));
   };
+
   return (
     <>
       <AutoComplete
@@ -79,7 +84,7 @@ const AddNewBook: FC = () => {
         onClear={clearState}
         onSelect={(value, option) => handleAutocompleteSelect(value, option)}
       >
-        {inputValue !== ""
+        {inputValue !== undefined
           ? filteredSuggestions &&
             filteredSuggestions.map((suggest: AddBookState) => (
               <Option key={suggest.index} value={suggest.title}>

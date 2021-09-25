@@ -12,7 +12,17 @@ const ListItem: FC<IBookProps> = ({ book }) => {
     <>
       <Item key={book.id} style={{ color: "white", padding: "2vh" }}>
         <Meta
-          avatar={<Image height={"20vh"} src={book.img_url} />}
+          avatar={
+            <Image
+              height={"20vh"}
+              width={"15vh"}
+              src={
+                book.img_url !== null
+                  ? book.img_url
+                  : "https://d3lq8p6p6r1qxf.cloudfront.net/1579208503064.png"
+              }
+            />
+          }
           title={
             <span style={{ color: "white", fontSize: "1.2vw" }}>
               {book.title}
