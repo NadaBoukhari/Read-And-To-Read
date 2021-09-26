@@ -17,7 +17,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooks() {
         List<Book> books = new ArrayList<>();
-        bookRepository.findAll().forEach(books::add);
+        bookRepository.findAllByOrderByCreatedOnDesc().forEach(books::add);
         return books;
     }
 

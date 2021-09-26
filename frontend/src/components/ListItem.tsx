@@ -10,7 +10,10 @@ interface IBookProps {
 const ListItem: FC<IBookProps> = ({ book }) => {
   return (
     <>
-      <Item key={book.id} style={{ color: "white", padding: "2vh" }}>
+      <Item
+        key={book.id}
+        style={{ color: "white", padding: "2vh", display: "block" }}
+      >
         <Meta
           avatar={
             <Image

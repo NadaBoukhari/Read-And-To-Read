@@ -34,7 +34,7 @@ const App: FC = () => {
 
       await axios
         .get(
-          `https://www.googleapis.com/books/v1/volumes?q=${temp}&langRestrict=en&maxResults=3`
+          `https://www.googleapis.com/books/v1/volumes?q="${temp}"&langRestrict=en&maxResults=10`
         )
         .then((response) => {
           const suggestions: IBook[] =

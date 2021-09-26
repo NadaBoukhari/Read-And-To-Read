@@ -2,6 +2,7 @@ package com.curveball.booklogger.book;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -31,5 +33,8 @@ public class Book {
     private String review;
     @Column(name = "img_url", columnDefinition = "TEXT")
     private String img_url;
+    @Column(name = "created_on")
+    @CreationTimestamp
+    private LocalDateTime createdOn;
 
 }
