@@ -1,50 +1,39 @@
-import { FC, useState, useEffect } from "react";
-import { AutoComplete, Image } from "antd";
-import axios from "axios";
-import { IBook } from "../models/BookListModel";
+import { FC, useEffect } from "react";
+import { AutoComplete, Image, Modal } from "antd";
+import { IBook } from "../models/BookModel";
+import ApiCalls from "../api/ApiCalls";
+import { formatToBookModel } from "../utils/Formatters";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 const { Option } = AutoComplete;
+const { confirm } = Modal;
 
-interface AddBookState extends IBook {
-  index: number | undefined;
+interface IAddNewBookProps {
+  inputValue: string;
+  setInputValue: (inputValue: string) => void;
+  filteredSuggestions: IBook[];
+  setFilteredSuggestions: (books: IBook[]) => void;
+  bookList: IBook[];
+  setBookList: (books: IBook[]) => void;
 }
 
-const AddNewBook: FC = () => {
-  const [inputValue, setInputValue] = useState<string>("");
-  const [filteredSuggestions, setFilteredSuggestions] = useState<
-    AddBookState[]
-  >([]);
-
+const AddNewBook: FC<IAddNewBookProps> = ({
+  inputValue,
+  setInputValue,
+  filteredSuggestions,
+  setFilteredSuggestions,
+  bookList,
+  setBookList,
+}) => {
   useEffect(() => {
-    const fetchBooks = async () => {
-      var temp = inputValue && inputValue.replace(/\s/g, "+");
-
-      await axios
-        .get(
-          `https://www.googleapis.com/books/v1/volumes?q=${temp}&langRestrict=en&maxResults=3`
-        )
-        .then((response) => {
-          const suggestions: AddBookState[] =
-            response.data.items &&
-            response.data.items.map((item: any, index: any) => {
-              return {
-                title: item.volumeInfo.title && item.volumeInfo.title,
-                author: item.volumeInfo.authors && item.volumeInfo.authors[0],
-                img_url:
-                  item.volumeInfo.imageLinks &&
-                  item.volumeInfo.imageLinks.thumbnail,
-                index: index,
-              };
-            });
-
-          setFilteredSuggestions(suggestions);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-
-    fetchBooks();
-  }, [inputValue]);
+    var searchTerm = inputValue && inputValue.replace(/\s/g, "+");
+    ApiCalls.searchGoogleBooksList(searchTerm)
+      .then((response) => {
+        setFilteredSuggestions(formatToBookModel(response));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [inputValue, setFilteredSuggestions]);
 
   const clearState = () => {
     setInputValue("");
@@ -53,15 +42,33 @@ const AddNewBook: FC = () => {
 
   const handleAutocompleteSelect = (value: string, option: any) => {
     const newBook = filteredSuggestions.find(
-      (book: AddBookState) => book.index === parseInt(option.key)
+      (book: IBook, index: number) => index === parseInt(option.key)
     );
+    if (newBook !== undefined) {
+      showConfirm(newBook);
+    }
+  };
 
-    axios
-      .post<IBook>("http://localhost:8080/books/add-book", newBook)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((err) => console.log(err));
+  const showConfirm = (newBook: IBook) => {
+    confirm({
+      title: "Do you want to add this book ?",
+      icon: <ExclamationCircleOutlined />,
+      width: "25%",
+      okText: "Yes",
+      okType: "primary",
+      content: (
+        /*<ListItem book={newBook} textColor="black" />*/ <div>
+          {newBook.title}
+        </div>
+      ),
+      onOk() {
+        ApiCalls.addBook(newBook)
+          .then(() => {
+            setBookList([newBook, ...bookList]);
+          })
+          .catch((err) => console.log(err));
+      },
+    });
   };
 
   return (
@@ -86,8 +93,8 @@ const AddNewBook: FC = () => {
       >
         {inputValue !== undefined
           ? filteredSuggestions &&
-            filteredSuggestions.map((suggest: AddBookState) => (
-              <Option key={suggest.index} value={suggest.title}>
+            filteredSuggestions.map((suggest: IBook, index: number) => (
+              <Option key={index} value={suggest.title}>
                 <div style={{ display: "flex", alignItems: "start" }}>
                   <Image
                     src={suggest.img_url}

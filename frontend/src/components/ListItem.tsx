@@ -1,24 +1,32 @@
 import { FC } from "react";
 import Item, { Meta } from "antd/lib/list/Item";
 import { Image, Rate } from "antd";
-import { IBook } from "../models/BookListModel";
+import { IBook } from "../models/BookModel";
 
 interface IBookProps {
   book: IBook;
+  textColor?: string;
+  setSelectedBook: (book: IBook) => void;
 }
 
-const ListItem: FC<IBookProps> = ({ book }) => {
+const ListItem: FC<IBookProps> = ({ book, textColor, setSelectedBook }) => {
   return (
     <>
       <Item
         key={book.id}
-        style={{ color: "white", padding: "2vh", display: "block" }}
+        style={{
+          color: textColor ? textColor : "white",
+          padding: "1vh",
+          display: "block",
+        }}
+        onClick={() => setSelectedBook(book)}
       >
         <Meta
+          style={{ marginBottom: 0 }}
           avatar={
             <Image
-              height={"20vh"}
-              width={"15vh"}
+              height={"15vh"}
+              width={"10vh"}
               src={
                 book.img_url !== null
                   ? book.img_url
@@ -27,7 +35,12 @@ const ListItem: FC<IBookProps> = ({ book }) => {
             />
           }
           title={
-            <span style={{ color: "white", fontSize: "1.2vw" }}>
+            <span
+              style={{
+                color: textColor ? textColor : "white",
+                fontSize: "1.1vw",
+              }}
+            >
               {book.title}
             </span>
           }
@@ -35,7 +48,7 @@ const ListItem: FC<IBookProps> = ({ book }) => {
             <div>
               <div
                 style={{
-                  color: "InactiveCaptionText",
+                  color: "ActiveCaption",
                   fontSize: "1vw",
                   display: "block",
                 }}
@@ -43,7 +56,25 @@ const ListItem: FC<IBookProps> = ({ book }) => {
                 {book.author}
               </div>
               <span>
-                <Rate allowHalf value={book.rating} />
+                {book.rating !== null ? (
+                  <Rate
+                    disabled
+                    allowHalf
+                    value={book.rating}
+                    style={{ fontSize: "1vw" }}
+                  />
+                ) : (
+                  <p
+                    style={{
+                      color: "InactiveCaptionText",
+                      fontSize: "0.9vw",
+                      display: "block",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Not rated yet
+                  </p>
+                )}
               </span>
             </div>
           }

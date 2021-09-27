@@ -6,13 +6,13 @@ import { IBookProps } from "../App";
 const BookList: FC<IBookProps> = ({ bookList }) => {
   return (
     <>
-      <List
+      {/* <List
         bordered={false}
         itemLayout="vertical"
         size="large"
         dataSource={bookList}
         renderItem={(book) => <ListItem book={book} />}
-      />
+      /> */}
     </>
   );
 };

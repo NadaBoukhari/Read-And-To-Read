@@ -2,13 +2,21 @@ import "antd/dist/antd.css";
 import "./App.css";
 import { FC, useEffect, useState } from "react";
 import ListItem from "./components/ListItem";
-import { Layout, AutoComplete, List, Image, Button, Tooltip } from "antd";
+import {
+  Layout,
+  AutoComplete,
+  List,
+  Button,
+  Tooltip,
+  message,
+  Popconfirm,
+} from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import axios from "axios";
-import { IBook } from "./models/BookListModel";
+import { IBook } from "./models/BookModel";
 import BookDisplay from "./components/BookDisplay";
+import ApiCalls from "./api/ApiCalls";
 import AddNewBook from "./components/AddNewBook";
-const { Option } = AutoComplete;
+
 const { Header, Sider } = Layout;
 
 export interface IBookProps {
@@ -19,74 +27,19 @@ export interface IBookDisplayProp {
   book: IBook | undefined;
 }
 
+// TODO: Add loading functionalities to async operations
+// TODO: Check react passing state to child as props
+
 const App: FC = () => {
   const [input, setInput] = useState<string>("");
   const [bookList, setBookList] = useState<IBook[]>([]);
   const [bookListDefault, setBookListDefault] = useState<IBook[]>([]);
   const [selectedBook, setSelectedBook] = useState<IBook>();
-
   const [inputValue, setInputValue] = useState<string>("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<IBook[]>([]);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      var temp = inputValue && inputValue.replace(/\s/g, "+");
-
-      await axios
-        .get(
-          `https://www.googleapis.com/books/v1/volumes?q="${temp}"&langRestrict=en&maxResults=10`
-        )
-        .then((response) => {
-          const suggestions: IBook[] =
-            response.data.items &&
-            response.data.items.map((item: any) => {
-              return {
-                title: item.volumeInfo.title && item.volumeInfo.title,
-                author: item.volumeInfo.authors && item.volumeInfo.authors[0],
-                img_url:
-                  item.volumeInfo.imageLinks &&
-                  item.volumeInfo.imageLinks.thumbnail,
-              };
-            });
-
-          setFilteredSuggestions(suggestions);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-
-    fetchBooks();
-  }, [inputValue]);
-
-  const clearState = () => {
-    setInputValue("");
-    setFilteredSuggestions([]);
-  };
-
-  const handleAutocompleteSelect = (value: string, option: any) => {
-    const newBook = filteredSuggestions.find(
-      (book: IBook, index: number) => index === parseInt(option.key)
-    );
-
-    axios
-      .post<IBook>("http://localhost:8080/books/add-book", newBook)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((err) => console.log(err));
-    if (newBook !== undefined) {
-      setBookList([newBook, ...bookList]);
-    }
-  };
-
-  useEffect(() => {
-    axios
-      .get<IBook[]>("http://localhost:8080/books/all", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+    ApiCalls.getAllBooks()
       .then((response) => {
         setBookListDefault(response.data);
         setBookList(response.data);
@@ -120,10 +73,14 @@ const App: FC = () => {
   };
 
   const handleDeleteButton = (bookToDelete: IBook) => {
-    axios
-      .delete(`http://localhost:8080/books/delete-book/${bookToDelete.id}`)
-      .then((response) => console.log(response))
-      .catch((err) => console.log(err));
+    ApiCalls.deleteBook(bookToDelete.id)
+      .then(() =>
+        message.success(
+          `Successfully removed ${bookToDelete.title} from reading list.`,
+          2
+        )
+      )
+      .catch((err) => message.error(err.message));
 
     const newBooklist = bookList.filter((book) => {
       return book.id !== bookToDelete.id;
@@ -131,6 +88,9 @@ const App: FC = () => {
 
     setBookList(newBooklist);
   };
+  // TODO: Remove rating from add book confirm modal
+  // TODO: Make the delete button scale up with larger screens
+  // TODO: Move the delete button to the book display
 
   return (
     <>
@@ -138,7 +98,7 @@ const App: FC = () => {
         <Sider
           breakpoint="xs"
           collapsedWidth="0"
-          width={"45vh"}
+          width={"22vw"}
           style={{ overflow: "auto", height: "100vh" }}
         >
           <div style={{ display: "flex", justifyContent: "center" }}>
@@ -160,6 +120,7 @@ const App: FC = () => {
               onChange={(e) => updateInput(e)}
               showSearch={true}
               onSelect={(value, option) => setNewBook(option)}
+              dropdownStyle={{ maxHeight: "40vh", overflow: "auto" }}
             />
           </div>
           <List
@@ -168,91 +129,39 @@ const App: FC = () => {
             size="large"
             dataSource={bookList}
             renderItem={(book) => (
-              <div
-                onClick={() => setSelectedBook(book)}
-                className="hover-effect"
-              >
-                <Tooltip title="Delete">
-                  {/*// TODO: Make the button scale up with larger screens */}
-                  <Button
-                    style={{
-                      float: "right",
-                    }}
-                    type="text"
-                    danger
-                    onClick={() => handleDeleteButton(book)}
-                    icon={<DeleteOutlined />}
-                  />
-                </Tooltip>
-                <ListItem book={book} />
+              <div className="hover-effect">
+                <Popconfirm
+                  title={"Are you sure you want to delete this book ?"}
+                  onConfirm={() => handleDeleteButton(book)}
+                  okText="Yes"
+                  cancelText="Cancel"
+                >
+                  <Tooltip title="Delete">
+                    <Button
+                      style={{
+                        float: "right",
+                      }}
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                    />
+                  </Tooltip>
+                </Popconfirm>
+                <ListItem book={book} setSelectedBook={setSelectedBook} />
               </div>
             )}
           />
         </Sider>
         <Layout>
           <Header className="site-layout-sub-header-background">
-            <AutoComplete
-              size="middle"
-              style={{
-                display: "flex",
-                float: "right",
-                margin: "2vh",
-                width: "25%",
-              }}
-              filterOption={(inputValue, option) =>
-                option!.value
-                  .toUpperCase()
-                  .indexOf(inputValue.toUpperCase()) !== -1
-              }
-              onChange={(e) => setInputValue(e)}
-              value={inputValue}
-              placeholder="Add new book..."
-              allowClear={true}
-              onClear={clearState}
-              onSelect={(value, option) =>
-                handleAutocompleteSelect(value, option)
-              }
-            >
-              {inputValue !== undefined
-                ? filteredSuggestions &&
-                  filteredSuggestions.map((suggest: IBook, index: number) => (
-                    <Option key={index} value={suggest.title}>
-                      <div style={{ display: "flex", alignItems: "start" }}>
-                        <Image
-                          src={suggest.img_url}
-                          width={"8vh"}
-                          height={"11vh"}
-                          preview={false}
-                        />
-                        <p style={{ padding: "0.5vh" }}>
-                          {/*// TODO: Make the title text wrap if title is too long */}
-                          <span
-                            style={{
-                              display: "block",
-                              color: "black",
-                              fontSize: "1vw",
-                              fontWeight: 600,
-                              width: "1vh",
-                            }}
-                          >
-                            {suggest.title}
-                          </span>
-                          <span
-                            style={{
-                              display: "block",
-                              color: "black",
-                              fontSize: "0.8vw",
-                              fontWeight: "normal",
-                            }}
-                          >
-                            {suggest.author}
-                          </span>
-                        </p>
-                      </div>
-                    </Option>
-                  ))
-                : null}
-            </AutoComplete>
+            <AddNewBook
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              filteredSuggestions={filteredSuggestions}
+              setFilteredSuggestions={setFilteredSuggestions}
+              bookList={bookList}
+              setBookList={setBookList}
+            />
           </Header>
           <BookDisplay book={selectedBook} />
         </Layout>
