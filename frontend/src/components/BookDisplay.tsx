@@ -1,9 +1,13 @@
 import { FC } from "react";
 import { Layout, Image, Rate } from "antd";
-import { IBookDisplayProp } from "../App";
+import { IBook } from "../models/BookModel";
 const { Content } = Layout;
 
-const BookDisplay: FC<IBookDisplayProp> = ({ book }) => {
+export interface IBookDisplayProps {
+  book: IBook;
+}
+
+const BookDisplay: FC<IBookDisplayProps> = ({ book }) => {
   return (
     <>
       <Content className="site-layout-content">

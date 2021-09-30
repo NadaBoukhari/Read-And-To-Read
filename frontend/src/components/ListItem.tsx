@@ -3,13 +3,13 @@ import Item, { Meta } from "antd/lib/list/Item";
 import { Image, Rate } from "antd";
 import { IBook } from "../models/BookModel";
 
-interface IBookProps {
+interface IListItemProps {
   book: IBook;
   textColor?: string;
   setSelectedBook: (book: IBook) => void;
 }
 
-const ListItem: FC<IBookProps> = ({ book, textColor, setSelectedBook }) => {
+const ListItem: FC<IListItemProps> = ({ book, textColor, setSelectedBook }) => {
   return (
     <>
       <Item
@@ -56,7 +56,7 @@ const ListItem: FC<IBookProps> = ({ book, textColor, setSelectedBook }) => {
                 {book.author}
               </div>
               <span>
-                {book.rating !== null ? (
+                {book.rating != null ? (
                   <Rate
                     disabled
                     allowHalf

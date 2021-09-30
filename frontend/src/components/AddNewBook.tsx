@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { AutoComplete, Image, Modal } from "antd";
 import { IBook } from "../models/BookModel";
 import ApiCalls from "../api/ApiCalls";
@@ -8,22 +8,14 @@ const { Option } = AutoComplete;
 const { confirm } = Modal;
 
 interface IAddNewBookProps {
-  inputValue: string;
-  setInputValue: (inputValue: string) => void;
-  filteredSuggestions: IBook[];
-  setFilteredSuggestions: (books: IBook[]) => void;
   bookList: IBook[];
   setBookList: (books: IBook[]) => void;
 }
 
-const AddNewBook: FC<IAddNewBookProps> = ({
-  inputValue,
-  setInputValue,
-  filteredSuggestions,
-  setFilteredSuggestions,
-  bookList,
-  setBookList,
-}) => {
+const AddNewBook: FC<IAddNewBookProps> = ({ bookList, setBookList }) => {
+  const [filteredSuggestions, setFilteredSuggestions] = useState<IBook[]>([]);
+  const [inputValue, setInputValue] = useState<string>("");
+
   useEffect(() => {
     var searchTerm = inputValue && inputValue.replace(/\s/g, "+");
     ApiCalls.searchGoogleBooksList(searchTerm)
@@ -57,8 +49,10 @@ const AddNewBook: FC<IAddNewBookProps> = ({
       okText: "Yes",
       okType: "primary",
       content: (
-        /*<ListItem book={newBook} textColor="black" />*/ <div>
-          {newBook.title}
+        <div>
+          <p>{newBook.title}</p>
+          <p>{newBook.author}</p>
+          <img src={newBook.img_url} />
         </div>
       ),
       onOk() {
