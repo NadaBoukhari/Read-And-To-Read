@@ -4,39 +4,37 @@ import ListItem from "./ListItem";
 import { DeleteOutlined } from "@ant-design/icons";
 import { IBook } from "../models/BookModel";
 import ApiCalls from "../api/ApiCalls";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
+import { deleteBook } from "../store/actions/bookListActions";
 
 // TODO: Remove IBookProps from listItem and remove textcolor property
 interface IBookListProps {
-  bookList: IBook[];
-  setBookList: (bookList: IBook[]) => void;
   textColor?: string;
   setSelectedBook: (book: IBook) => void;
 }
 
-const BookList: FC<IBookListProps> = ({
-  bookList,
-  setSelectedBook,
-  setBookList,
-}) => {
+const BookList: FC<IBookListProps> = ({ setSelectedBook }) => {
+  const dispatch = useDispatch();
+
   const handleDeleteButton = (bookToDelete: IBook) => {
     ApiCalls.deleteBook(bookToDelete.id)
-      .then(() =>
+      .then(() => {
+        dispatch(deleteBook(bookToDelete.id));
         message.success(
           `Successfully removed ${bookToDelete.title} from reading list.`,
-          2
-        )
-      )
+          1.5
+        );
+      })
       .catch((err) => message.error(err.message));
-
-    const newBooklist = bookList.filter((book) => {
-      return book.id !== bookToDelete.id;
-    });
-    setBookList(newBooklist);
   };
+
+  const globalBookList = useSelector((state: RootState) => state.bookList);
+  console.log(globalBookList);
 
   return (
     <>
-      {bookList.length === 0 ? (
+      {globalBookList.data.bookList.length === 0 ? (
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
@@ -50,7 +48,7 @@ const BookList: FC<IBookListProps> = ({
           bordered={false}
           itemLayout="vertical"
           size="large"
-          dataSource={bookList}
+          dataSource={globalBookList.data.bookList}
           renderItem={(book) => (
             <div className="hover-effect">
               <Popconfirm

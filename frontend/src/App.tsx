@@ -4,10 +4,10 @@ import { FC, useEffect, useState } from "react";
 import { Layout } from "antd";
 import { IBook } from "./models/BookModel";
 import BookDisplay from "./components/BookDisplay";
-import ApiCalls from "./api/ApiCalls";
 import AddNewBook from "./components/AddNewBook";
-import BookList from "./components/BookList";
-import SearchBookAutocomplete from "./components/SearchBookAutocomplete";
+import { useDispatch } from "react-redux";
+import { getBookList } from "./store/actions/bookListActions";
+import BookListSider from "./components/BookListSider";
 
 const { Header, Sider } = Layout;
 
@@ -16,11 +16,9 @@ export interface IBookProps {
 }
 
 // TODO: Add loading functionalities to async operations
-// TODO: Check react passing state to child as props
 
 const App: FC = () => {
-  const [bookList, setBookList] = useState<IBook[]>([]);
-  const [bookListDefault, setBookListDefault] = useState<IBook[]>([]);
+  const dispatch = useDispatch();
   const [selectedBook, setSelectedBook] = useState<IBook>({
     id: "",
     title: "",
@@ -28,15 +26,8 @@ const App: FC = () => {
   });
 
   useEffect(() => {
-    ApiCalls.getAllBooks()
-      .then((response) => {
-        setBookListDefault(response.data);
-        setBookList(response.data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  }, []);
+    dispatch(getBookList());
+  }, [dispatch]);
 
   // TODO: Remove rating from add book confirm modal
   // TODO: Make the delete button scale up with larger screens
@@ -47,28 +38,16 @@ const App: FC = () => {
       <Layout>
         <Sider
           breakpoint="xs"
-          collapsedWidth="0"
-          width={"22vw"}
+          width={"15vw"}
           style={{ overflow: "auto", height: "100vh" }}
-        >
-          <SearchBookAutocomplete
-            bookList={bookList}
-            setBookList={setBookList}
-            setSelectedBook={setSelectedBook}
-            bookListDefault={bookListDefault}
-          />
-          <BookList
-            bookList={bookList}
-            setSelectedBook={setSelectedBook}
-            setBookList={setBookList}
-          />
-        </Sider>
+        ></Sider>
         <Layout>
           <Header className="site-layout-sub-header-background">
-            <AddNewBook bookList={bookList} setBookList={setBookList} />
+            <AddNewBook />
           </Header>
           <BookDisplay book={selectedBook} />
         </Layout>
+        <BookListSider setSelectedBook={setSelectedBook} />
       </Layout>
     </>
   );

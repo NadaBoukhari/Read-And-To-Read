@@ -1,20 +1,19 @@
 import { FC, useState } from "react";
 import { AutoComplete } from "antd";
 import { IBook } from "../models/BookModel";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
 
 interface ISearchBookAutocompleteProps {
-  bookList: IBook[];
   bookListDefault: IBook[];
   setSelectedBook: (book: IBook) => void;
-  setBookList: (booklist: IBook[]) => void;
 }
 
 const SearchBookAutocomplete: FC<ISearchBookAutocompleteProps> = ({
-  bookList,
   bookListDefault,
-  setBookList,
   setSelectedBook,
 }) => {
+  const dispatch = useDispatch();
   const [input, setInput] = useState<string>("");
   const setNewBook = (option: any) => {
     const newBook: IBook = {
@@ -36,8 +35,10 @@ const SearchBookAutocomplete: FC<ISearchBookAutocompleteProps> = ({
       );
     });
     setInput(input);
-    setBookList(filtered);
+    // setBookList(filtered);
   };
+
+  const globalBookList = useSelector((state: RootState) => state.bookList);
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
@@ -46,7 +47,7 @@ const SearchBookAutocomplete: FC<ISearchBookAutocompleteProps> = ({
           width: "80%",
           marginTop: "1vh",
         }}
-        options={bookList.map((book) => ({
+        options={globalBookList.data.bookList.map((book) => ({
           id: book.id,
           value: book.title,
           author: book.author,

@@ -4,37 +4,37 @@ import { IBook } from "../models/BookModel";
 import ApiCalls from "../api/ApiCalls";
 import { formatToBookModel } from "../utils/Formatters";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { addBook } from "../store/actions/bookListActions";
 const { Option } = AutoComplete;
 const { confirm } = Modal;
 
-interface IAddNewBookProps {
-  bookList: IBook[];
-  setBookList: (books: IBook[]) => void;
-}
-
-const AddNewBook: FC<IAddNewBookProps> = ({ bookList, setBookList }) => {
-  const [filteredSuggestions, setFilteredSuggestions] = useState<IBook[]>([]);
+const AddNewBook: FC = () => {
+  const dispatch = useDispatch();
+  const [bookSuggestions, setBookSuggestions] = useState<IBook[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
 
   useEffect(() => {
-    var searchTerm = inputValue && inputValue.replace(/\s/g, "+");
-    ApiCalls.searchGoogleBooksList(searchTerm)
-      .then((response) => {
-        setFilteredSuggestions(formatToBookModel(response));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [inputValue, setFilteredSuggestions]);
+    if (inputValue !== "") {
+      var searchTerm = inputValue && inputValue.replace(/\s/g, "+");
+      ApiCalls.searchGoogleBooksList(searchTerm)
+        .then((response) => {
+          setBookSuggestions(formatToBookModel(response));
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [inputValue, setBookSuggestions]);
 
   const clearState = () => {
     setInputValue("");
-    setFilteredSuggestions([]);
+    setBookSuggestions([]);
   };
 
-  const handleAutocompleteSelect = (value: string, option: any) => {
-    const newBook = filteredSuggestions.find(
-      (book: IBook, index: number) => index === parseInt(option.key)
+  const handleAutocompleteSelect = (indexValue: number) => {
+    const newBook = bookSuggestions.find(
+      (book: IBook, index: number) => index === indexValue
     );
     if (newBook !== undefined) {
       showConfirm(newBook);
@@ -52,13 +52,14 @@ const AddNewBook: FC<IAddNewBookProps> = ({ bookList, setBookList }) => {
         <div>
           <p>{newBook.title}</p>
           <p>{newBook.author}</p>
-          <img src={newBook.img_url} />
+          <img src={newBook.img_url} alt="" />
         </div>
       ),
       onOk() {
         ApiCalls.addBook(newBook)
-          .then(() => {
-            setBookList([newBook, ...bookList]);
+          .then((response) => {
+            dispatch(addBook(response.data));
+            clearState();
           })
           .catch((err) => console.log(err));
       },
@@ -83,15 +84,18 @@ const AddNewBook: FC<IAddNewBookProps> = ({ bookList, setBookList }) => {
         placeholder="Add new book..."
         allowClear={true}
         onClear={clearState}
-        onSelect={(value, option) => handleAutocompleteSelect(value, option)}
+        onSelect={(value, option) => setInputValue(inputValue)}
       >
         {inputValue !== undefined
-          ? filteredSuggestions &&
-            filteredSuggestions.map((suggest: IBook, index: number) => (
-              <Option key={index} value={suggest.title}>
-                <div style={{ display: "flex", alignItems: "start" }}>
+          ? bookSuggestions &&
+            bookSuggestions.map((bookSuggestion: IBook, index: number) => (
+              <Option key={index} value={bookSuggestion.title}>
+                <div
+                  style={{ display: "flex", alignItems: "start" }}
+                  onClick={() => handleAutocompleteSelect(index)}
+                >
                   <Image
-                    src={suggest.img_url}
+                    src={bookSuggestion.img_url}
                     width={"8vh"}
                     height={"11vh"}
                     preview={false}
@@ -107,7 +111,7 @@ const AddNewBook: FC<IAddNewBookProps> = ({ bookList, setBookList }) => {
                         width: "1vh",
                       }}
                     >
-                      {suggest.title}
+                      {bookSuggestion.title}
                     </span>
                     <span
                       style={{
@@ -117,7 +121,7 @@ const AddNewBook: FC<IAddNewBookProps> = ({ bookList, setBookList }) => {
                         fontWeight: "normal",
                       }}
                     >
-                      {suggest.author}
+                      {bookSuggestion.author}
                     </span>
                   </p>
                 </div>
