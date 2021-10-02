@@ -37,7 +37,7 @@ const ListItem: FC<IListItemProps> = ({ book, textColor, setSelectedBook }) => {
           title={
             <span
               style={{
-                color: textColor ? textColor : "white",
+                color: textColor ? textColor : "CaptionText",
                 fontSize: "1.1vw",
               }}
             >

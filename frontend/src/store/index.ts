@@ -1,18 +1,11 @@
-import { createStore, applyMiddleware, combineReducers } from "redux";
-import { composeWithDevTools } from "redux-devtools-extension";
-import thunk from "redux-thunk";
+import { configureStore } from "@reduxjs/toolkit";
+import BookListReducerfrom from "./slices/BookListSlices";
 
-import BookListReducer from "./reducers/bookListReducer";
-
-const RootReducer = combineReducers({
-  bookList: BookListReducer,
+export const store = configureStore({
+  reducer: {
+    booklist: BookListReducerfrom,
+  },
 });
 
-const store = createStore(
-  RootReducer,
-  composeWithDevTools(applyMiddleware(thunk))
-);
-
-export type RootState = ReturnType<typeof RootReducer>;
-
-export default store;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

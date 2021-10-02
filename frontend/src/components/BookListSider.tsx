@@ -6,15 +6,15 @@ import {
   Popconfirm,
   Tooltip,
   message,
+  Drawer,
 } from "antd";
-import Sider from "antd/lib/layout/Sider";
 import { FC, useState, useEffect } from "react";
 import { IBook } from "../models/BookModel";
 import { DeleteOutlined } from "@ant-design/icons";
 import ListItem from "./ListItem";
 import ApiCalls from "../api/ApiCalls";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteBook } from "../store/actions/bookListActions";
+import { deleteBook, toggleVisible } from "../store/slices/BookListSlices";
 import { RootState } from "../store";
 
 interface ISearchBookAutocompleteProps {
@@ -25,27 +25,21 @@ const BookListSider: FC<ISearchBookAutocompleteProps> = ({
   setSelectedBook,
 }) => {
   const dispatch = useDispatch();
-  const globalBookList = useSelector((state: RootState) => state.bookList);
-  const [collapsed, setCollapsed] = useState<boolean>(false);
-  const [booklist, setBookList] = useState<IBook[]>(
-    globalBookList.data.bookList
+  const globalBookList = useSelector(
+    (state: RootState) => state.booklist.booklist
   );
+  const globalVisible = useSelector(
+    (state: RootState) => state.booklist.visible
+  );
+  const [booklist, setBookList] = useState<IBook[]>(globalBookList);
   const [input, setInput] = useState<string>("");
 
   useEffect(() => {
-    setBookList(globalBookList.data.bookList);
-  }, [globalBookList.data.bookList]);
-
-  const onCollapse = (collapsed: boolean) => {
-    setCollapsed(collapsed);
-  };
-
-  const toggle = () => {
-    setCollapsed(!collapsed);
-  };
+    setBookList(globalBookList);
+  }, [globalBookList]);
 
   const updateInput = async (input: string) => {
-    const filtered = globalBookList.data.bookList.filter((book) => {
+    const filtered = globalBookList.filter((book) => {
       return (
         book.title.toLowerCase().includes(input && input.toLowerCase()) ||
         book.author.toLowerCase().includes(input && input.toLowerCase())
@@ -67,6 +61,10 @@ const BookListSider: FC<ISearchBookAutocompleteProps> = ({
     setSelectedBook(newBook);
   };
 
+  const onClose = () => {
+    dispatch(toggleVisible(false));
+  };
+
   const handleDeleteButton = (bookToDelete: IBook) => {
     ApiCalls.deleteBook(bookToDelete.id)
       .then(() => {
@@ -82,109 +80,80 @@ const BookListSider: FC<ISearchBookAutocompleteProps> = ({
       })
       .catch((err) => message.error(err.message));
   };
+  // TODO: Change Sider to drawer
   return (
     <>
-      <Button onClick={() => toggle()}>Hey</Button>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        onCollapse={onCollapse}
-        collapsedWidth="3vw"
-        breakpoint="xs"
-        width={"18vw"}
+      <Drawer
+        title="Your Book List"
+        placement="right"
+        onClose={onClose}
+        visible={globalVisible}
+        width={"20vw"}
         style={{ overflow: "auto", height: "100vh" }}
       >
-        {collapsed ? (
-          <div
-            className="hover-effect"
-            onClick={toggle}
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <AutoComplete
             style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100%",
-              overflow: "hidden",
+              width: "80%",
+              marginTop: "1vh",
             }}
-          >
-            <h1
-              style={{
-                color: "white",
-                writingMode: "vertical-rl",
-                fontSize: "2vw",
-                margin: 0,
-              }}
-            >
-              Book List
-            </h1>
-          </div>
-        ) : (
-          <>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <AutoComplete
-                style={{
-                  width: "80%",
-                  marginTop: "1vh",
-                }}
-                options={booklist.map((book) => ({
-                  id: book.id,
-                  value: book.title,
-                  author: book.author,
-                  review: book.review,
-                  rating: book.rating,
-                  img_url: book.img_url,
-                }))}
-                placeholder="Search by title or author..."
-                value={input}
-                onChange={(e) => updateInput(e)}
-                showSearch={true}
-                onSelect={(value, option) => setNewBook(option)}
-                dropdownStyle={{ maxHeight: "40vh", overflow: "auto" }}
-              />
-            </div>
+            options={booklist.map((book) => ({
+              id: book.id,
+              value: book.title,
+              author: book.author,
+              review: book.review,
+              rating: book.rating,
+              img_url: book.img_url,
+            }))}
+            placeholder="Search by title or author..."
+            value={input}
+            onChange={(e) => updateInput(e)}
+            showSearch={true}
+            onSelect={(value, option) => setNewBook(option)}
+            dropdownStyle={{ maxHeight: "40vh", overflow: "auto" }}
+          />
+        </div>
 
-            {booklist.length === 0 ? (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={
-                  <span style={{ color: "white", fontStyle: "italic" }}>
-                    The book list is empty for now... Try adding a new book !
-                  </span>
-                }
-              />
-            ) : (
-              <List
-                bordered={false}
-                itemLayout="vertical"
-                size="large"
-                dataSource={booklist}
-                renderItem={(book) => (
-                  <div className="hover-effect">
-                    <Popconfirm
-                      title={"Are you sure you want to delete this book ?"}
-                      onConfirm={() => handleDeleteButton(book)}
-                      okText="Yes"
-                      cancelText="Cancel"
-                    >
-                      <Tooltip title="Delete">
-                        <Button
-                          style={{
-                            float: "right",
-                          }}
-                          type="text"
-                          danger
-                          icon={<DeleteOutlined />}
-                        />
-                      </Tooltip>
-                    </Popconfirm>
-                    <ListItem book={book} setSelectedBook={setSelectedBook} />
-                  </div>
-                )}
-              />
+        {booklist.length === 0 ? (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <span style={{ color: "white", fontStyle: "italic" }}>
+                The book list is empty for now... Try adding a new book !
+              </span>
+            }
+          />
+        ) : (
+          <List
+            bordered={false}
+            itemLayout="vertical"
+            size="large"
+            dataSource={booklist}
+            renderItem={(book) => (
+              <div className="hover-effect">
+                <Popconfirm
+                  title={"Are you sure you want to delete this book ?"}
+                  onConfirm={() => handleDeleteButton(book)}
+                  okText="Yes"
+                  cancelText="Cancel"
+                >
+                  <Tooltip title="Delete">
+                    <Button
+                      style={{
+                        float: "right",
+                      }}
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                    />
+                  </Tooltip>
+                </Popconfirm>
+                <ListItem book={book} setSelectedBook={setSelectedBook} />
+              </div>
             )}
-          </>
+          />
         )}
-      </Sider>
+      </Drawer>
     </>
   );
 };

@@ -38,7 +38,9 @@ const SearchBookAutocomplete: FC<ISearchBookAutocompleteProps> = ({
     // setBookList(filtered);
   };
 
-  const globalBookList = useSelector((state: RootState) => state.bookList);
+  const globalBookList = useSelector(
+    (state: RootState) => state.booklist.booklist
+  );
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
@@ -47,7 +49,7 @@ const SearchBookAutocomplete: FC<ISearchBookAutocompleteProps> = ({
           width: "80%",
           marginTop: "1vh",
         }}
-        options={globalBookList.data.bookList.map((book) => ({
+        options={globalBookList.map((book) => ({
           id: book.id,
           value: book.title,
           author: book.author,

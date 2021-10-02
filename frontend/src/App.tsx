@@ -5,9 +5,12 @@ import { Layout } from "antd";
 import { IBook } from "./models/BookModel";
 import BookDisplay from "./components/BookDisplay";
 import AddNewBook from "./components/AddNewBook";
-import { useDispatch } from "react-redux";
-import { getBookList } from "./store/actions/bookListActions";
+import { useDispatch, useSelector } from "react-redux";
+import { getBookList, toggleVisible } from "./store/slices/BookListSlices";
 import BookListSider from "./components/BookListSider";
+import { BsArrowBarLeft } from "react-icons/bs";
+import ApiCalls from "./api/ApiCalls";
+import { RootState } from "./store";
 
 const { Header, Sider } = Layout;
 
@@ -25,8 +28,18 @@ const App: FC = () => {
     author: "",
   });
 
+  const globalVisible = useSelector(
+    (state: RootState) => state.booklist.visible
+  );
+
   useEffect(() => {
-    dispatch(getBookList());
+    try {
+      ApiCalls.getAllBooks().then((response) => {
+        dispatch(getBookList(response.data));
+      });
+    } catch (err: any) {
+      console.log(err.message);
+    }
   }, [dispatch]);
 
   // TODO: Remove rating from add book confirm modal
@@ -43,6 +56,16 @@ const App: FC = () => {
         ></Sider>
         <Layout>
           <Header className="site-layout-sub-header-background">
+            <BsArrowBarLeft
+              style={{
+                display: "flex",
+                float: "right",
+                width: "1.5vw",
+                height: "100%",
+                marginRight: "1vh",
+              }}
+              onClick={() => dispatch(toggleVisible(!globalVisible))}
+            />
             <AddNewBook />
           </Header>
           <BookDisplay book={selectedBook} />

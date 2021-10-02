@@ -6,7 +6,7 @@ import { IBook } from "../models/BookModel";
 import ApiCalls from "../api/ApiCalls";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
-import { deleteBook } from "../store/actions/bookListActions";
+import { deleteBook } from "../store/slices/BookListSlices";
 
 // TODO: Remove IBookProps from listItem and remove textcolor property
 interface IBookListProps {
@@ -29,12 +29,14 @@ const BookList: FC<IBookListProps> = ({ setSelectedBook }) => {
       .catch((err) => message.error(err.message));
   };
 
-  const globalBookList = useSelector((state: RootState) => state.bookList);
+  const globalBookList = useSelector(
+    (state: RootState) => state.booklist.booklist
+  );
   console.log(globalBookList);
 
   return (
     <>
-      {globalBookList.data.bookList.length === 0 ? (
+      {globalBookList.length === 0 ? (
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
@@ -48,7 +50,7 @@ const BookList: FC<IBookListProps> = ({ setSelectedBook }) => {
           bordered={false}
           itemLayout="vertical"
           size="large"
-          dataSource={globalBookList.data.bookList}
+          dataSource={globalBookList}
           renderItem={(book) => (
             <div className="hover-effect">
               <Popconfirm

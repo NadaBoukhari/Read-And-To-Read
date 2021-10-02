@@ -1,11 +1,11 @@
 import { FC, useEffect, useState } from "react";
-import { AutoComplete, Image, Modal } from "antd";
+import { AutoComplete, Image, Modal, message } from "antd";
 import { IBook } from "../models/BookModel";
 import ApiCalls from "../api/ApiCalls";
 import { formatToBookModel } from "../utils/Formatters";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import { addBook } from "../store/actions/bookListActions";
+import { addBook, toggleVisible } from "../store/slices/BookListSlices";
 const { Option } = AutoComplete;
 const { confirm } = Modal;
 
@@ -60,6 +60,11 @@ const AddNewBook: FC = () => {
           .then((response) => {
             dispatch(addBook(response.data));
             clearState();
+            message.success(
+              `Successfully added ${newBook.title} to reading list.`,
+              1.5
+            );
+            dispatch(toggleVisible(true));
           })
           .catch((err) => console.log(err));
       },
@@ -67,18 +72,20 @@ const AddNewBook: FC = () => {
   };
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        float: "right",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+      }}
+    >
       <AutoComplete
-        size="middle"
-        style={{
-          display: "flex",
-          float: "right",
-          margin: "2vh",
-          width: "25%",
-        }}
         filterOption={(inputValue, option) =>
           option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
         }
+        style={{ width: "15vw", marginRight: "1vw" }}
         onChange={(e) => setInputValue(e)}
         value={inputValue}
         placeholder="Add new book..."
@@ -129,7 +136,7 @@ const AddNewBook: FC = () => {
             ))
           : null}
       </AutoComplete>
-    </>
+    </div>
   );
 };
 
