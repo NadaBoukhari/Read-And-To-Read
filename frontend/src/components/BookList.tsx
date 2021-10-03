@@ -4,17 +4,14 @@ import ListItem from "./ListItem";
 import { DeleteOutlined } from "@ant-design/icons";
 import { IBook } from "../models/BookModel";
 import ApiCalls from "../api/ApiCalls";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store";
+import { useDispatch } from "react-redux";
 import { deleteBook } from "../store/slices/BookListSlices";
 
-// TODO: Remove IBookProps from listItem and remove textcolor property
 interface IBookListProps {
-  textColor?: string;
-  setSelectedBook: (book: IBook) => void;
+  bookList: IBook[];
 }
 
-const BookList: FC<IBookListProps> = ({ setSelectedBook }) => {
+const BookList: FC<IBookListProps> = ({ bookList }) => {
   const dispatch = useDispatch();
 
   const handleDeleteButton = (bookToDelete: IBook) => {
@@ -29,19 +26,14 @@ const BookList: FC<IBookListProps> = ({ setSelectedBook }) => {
       .catch((err) => message.error(err.message));
   };
 
-  const globalBookList = useSelector(
-    (state: RootState) => state.booklist.booklist
-  );
-  console.log(globalBookList);
-
   return (
     <>
-      {globalBookList.length === 0 ? (
+      {bookList.length === 0 ? (
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
-            <span style={{ color: "white" }}>
-              Sorry ! No books are available
+            <span style={{ color: "white", fontStyle: "italic" }}>
+              The book list is empty for now... Try adding a new book !
             </span>
           }
         />
@@ -50,7 +42,7 @@ const BookList: FC<IBookListProps> = ({ setSelectedBook }) => {
           bordered={false}
           itemLayout="vertical"
           size="large"
-          dataSource={globalBookList}
+          dataSource={bookList}
           renderItem={(book) => (
             <div className="hover-effect">
               <Popconfirm
@@ -70,7 +62,7 @@ const BookList: FC<IBookListProps> = ({ setSelectedBook }) => {
                   />
                 </Tooltip>
               </Popconfirm>
-              <ListItem book={book} setSelectedBook={setSelectedBook} />
+              <ListItem book={book} />
             </div>
           )}
         />

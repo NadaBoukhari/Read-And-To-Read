@@ -1,13 +1,13 @@
 import "antd/dist/antd.css";
 import "./App.css";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { Layout } from "antd";
 import { IBook } from "./models/BookModel";
 import BookDisplay from "./components/BookDisplay";
 import AddNewBook from "./components/AddNewBook";
 import { useDispatch, useSelector } from "react-redux";
 import { getBookList, toggleVisible } from "./store/slices/BookListSlices";
-import BookListSider from "./components/BookListSider";
+import BookListDrawer from "./components/BookListDrawer";
 import { BsArrowBarLeft } from "react-icons/bs";
 import ApiCalls from "./api/ApiCalls";
 import { RootState } from "./store";
@@ -19,17 +19,13 @@ export interface IBookProps {
 }
 
 // TODO: Add loading functionalities to async operations
+// TODO: Move the delete button to the book display
 
 const App: FC = () => {
   const dispatch = useDispatch();
-  const [selectedBook, setSelectedBook] = useState<IBook>({
-    id: "",
-    title: "",
-    author: "",
-  });
 
   const globalVisible = useSelector(
-    (state: RootState) => state.booklist.visible
+    (state: RootState) => state.bookList.visible
   );
 
   useEffect(() => {
@@ -41,10 +37,6 @@ const App: FC = () => {
       console.log(err.message);
     }
   }, [dispatch]);
-
-  // TODO: Remove rating from add book confirm modal
-  // TODO: Make the delete button scale up with larger screens
-  // TODO: Move the delete button to the book display
 
   return (
     <>
@@ -68,9 +60,9 @@ const App: FC = () => {
             />
             <AddNewBook />
           </Header>
-          <BookDisplay book={selectedBook} />
+          <BookDisplay />
         </Layout>
-        <BookListSider setSelectedBook={setSelectedBook} />
+        <BookListDrawer />
       </Layout>
     </>
   );

@@ -108,7 +108,6 @@ const AddNewBook: FC = () => {
                     preview={false}
                   />
                   <p style={{ padding: "0.5vh" }}>
-                    {/*// TODO: Make the title text wrap if title is too long */}
                     <span
                       style={{
                         display: "block",

@@ -2,24 +2,25 @@ import { FC } from "react";
 import Item, { Meta } from "antd/lib/list/Item";
 import { Image, Rate } from "antd";
 import { IBook } from "../models/BookModel";
+import { useDispatch } from "react-redux";
+import { setSelectedBook } from "../store/slices/BookListSlices";
 
 interface IListItemProps {
   book: IBook;
-  textColor?: string;
-  setSelectedBook: (book: IBook) => void;
 }
 
-const ListItem: FC<IListItemProps> = ({ book, textColor, setSelectedBook }) => {
+const ListItem: FC<IListItemProps> = ({ book }) => {
+  const dispatch = useDispatch();
   return (
     <>
       <Item
         key={book.id}
         style={{
-          color: textColor ? textColor : "white",
+          color: "black",
           padding: "1vh",
           display: "block",
         }}
-        onClick={() => setSelectedBook(book)}
+        onClick={() => dispatch(setSelectedBook(book))}
       >
         <Meta
           style={{ marginBottom: 0 }}
@@ -37,7 +38,7 @@ const ListItem: FC<IListItemProps> = ({ book, textColor, setSelectedBook }) => {
           title={
             <span
               style={{
-                color: textColor ? textColor : "CaptionText",
+                color: "CaptionText",
                 fontSize: "1.1vw",
               }}
             >
