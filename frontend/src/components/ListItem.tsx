@@ -3,7 +3,7 @@ import Item, { Meta } from "antd/lib/list/Item";
 import { Image, Rate } from "antd";
 import { IBook } from "../models/BookModel";
 import { useDispatch } from "react-redux";
-import { setSelectedBook } from "../store/slices/BookListSlices";
+import { setDisplayBook } from "../store/slices/DisplayBookSlice";
 
 interface IListItemProps {
   book: IBook;
@@ -20,7 +20,7 @@ const ListItem: FC<IListItemProps> = ({ book }) => {
           padding: "1vh",
           display: "block",
         }}
-        onClick={() => dispatch(setSelectedBook(book))}
+        onClick={() => dispatch(setDisplayBook(book))}
       >
         <Meta
           style={{ marginBottom: 0 }}

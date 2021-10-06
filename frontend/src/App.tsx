@@ -19,7 +19,7 @@ export interface IBookProps {
 }
 
 // TODO: Add loading functionalities to async operations
-// TODO: Move the delete button to the book display
+// TODO: Format the book display and move the delete button to the book display
 
 const App: FC = () => {
   const dispatch = useDispatch();
@@ -44,7 +44,11 @@ const App: FC = () => {
         <Sider
           breakpoint="xs"
           width={"15vw"}
-          style={{ overflow: "auto", height: "100vh" }}
+          style={{
+            overflow: "auto",
+            height: "98vh",
+            margin: "1vh 0vh 1vh 1vh",
+          }}
         ></Sider>
         <Layout>
           <Header className="site-layout-sub-header-background">

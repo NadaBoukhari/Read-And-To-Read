@@ -2,7 +2,8 @@ import { AutoComplete, Drawer } from "antd";
 import { FC, useState, useEffect } from "react";
 import { IBook } from "../models/BookModel";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleVisible, setSelectedBook } from "../store/slices/BookListSlices";
+import { toggleVisible } from "../store/slices/BookListSlices";
+import { setDisplayBook } from "../store/slices/DisplayBookSlice";
 import { RootState } from "../store";
 import BookList from "./BookList";
 
@@ -40,8 +41,9 @@ const BookListDrawer: FC = () => {
       review: option.review,
       rating: option.rating,
       img_url: option.img_url,
+      description: option.description,
     };
-    dispatch(setSelectedBook(newBook));
+    dispatch(setDisplayBook(newBook));
   };
 
   const onClose = () => {
@@ -71,6 +73,7 @@ const BookListDrawer: FC = () => {
               review: book.review,
               rating: book.rating,
               img_url: book.img_url,
+              description: book.description,
             }))}
             placeholder="Search by title or author..."
             value={input}

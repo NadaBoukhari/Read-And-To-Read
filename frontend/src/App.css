@@ -1,5 +1,7 @@
-.site-layout-content {
-  margin: 1vh;
+@import url("https://fonts.googleapis.com/css2?family=Varta&display=swap");
+
+body {
+  font-family: "Varta", sans-serif !important;
 }
 
 .site-layout-sub-header-background {
@@ -10,8 +12,7 @@
 
 .site-layout-background {
   padding: 1vh;
-  height: 87vh;
-
+  height: 88vh;
   background: #fff;
 }
 
@@ -21,12 +22,4 @@
 
 .hover-effect:hover {
   background-color: #3c426b;
-}
-
-.triangle {
-  width: 0;
-  height: 0;
-  border-top: 2vw solid transparent;
-  border-right: 4vw solid red;
-  border-bottom: 2vw solid transparent;
 }

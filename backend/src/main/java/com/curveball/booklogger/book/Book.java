@@ -31,6 +31,8 @@ public class Book {
     private Double rating;
     @Column(name = "review", columnDefinition = "TEXT")
     private String review;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
     @Column(name = "img_url", columnDefinition = "TEXT")
     private String img_url;
     @Column(name = "created_on")

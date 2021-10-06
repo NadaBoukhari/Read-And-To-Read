@@ -4,13 +4,11 @@ import { IBook } from "../../models/BookModel";
 export interface BookListState {
   bookList: IBook[];
   visible: boolean;
-  selectedBook: IBook;
 }
 
 const initialState: BookListState = {
   bookList: [],
   visible: false,
-  selectedBook: { id: "", title: "", author: "" },
 };
 
 export const bookListSlice = createSlice({
@@ -19,7 +17,6 @@ export const bookListSlice = createSlice({
   reducers: {
     getBookList: (state, action: PayloadAction<IBook[]>) => {
       state.bookList = action.payload;
-      state.visible = true;
     },
     addBook: (state, action: PayloadAction<IBook>) => {
       state.bookList.unshift(action.payload);
@@ -32,17 +29,9 @@ export const bookListSlice = createSlice({
     toggleVisible: (state, action: PayloadAction<boolean>) => {
       state.visible = action.payload;
     },
-    setSelectedBook: (state, action: PayloadAction<IBook>) => {
-      state.selectedBook = action.payload;
-    },
   },
 });
 
-export const {
-  getBookList,
-  addBook,
-  deleteBook,
-  toggleVisible,
-  setSelectedBook,
-} = bookListSlice.actions;
+export const { getBookList, addBook, deleteBook, toggleVisible } =
+  bookListSlice.actions;
 export default bookListSlice.reducer;

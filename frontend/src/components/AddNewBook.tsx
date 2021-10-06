@@ -19,6 +19,7 @@ const AddNewBook: FC = () => {
       var searchTerm = inputValue && inputValue.replace(/\s/g, "+");
       ApiCalls.searchGoogleBooksList(searchTerm)
         .then((response) => {
+          console.log(response.data);
           setBookSuggestions(formatToBookModel(response));
         })
         .catch((err) => {
